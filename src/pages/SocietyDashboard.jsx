@@ -85,8 +85,10 @@ const SocietyDashboard = () => {
     e.preventDefault();
     try {
       await db.addPost(society.id, postForm.title, postForm.title, postForm.image);
-      const allPosts = await db.getPosts();
-      setPosts(allPosts[society.id] || []);
+      // Fetch the flat list of all posts and filter for this society
+      const flatPosts = await db.getAllPosts();
+      const filtered = flatPosts.filter(p => p.societyId === society.id);
+      setPosts(filtered);
       setPostForm({ title: '', image: '', time: 'Just now' });
       setShowPostForm(false);
       alert('Post created successfully!');

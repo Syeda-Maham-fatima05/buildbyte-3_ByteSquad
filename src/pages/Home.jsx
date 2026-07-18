@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import EventCard from '../components/EventCard';
@@ -6,7 +7,7 @@ import { db } from '../services/db';
 import { Users, CalendarDays, TrendingUp, Building2, MapPin, Clock, Quote, Sparkles } from 'lucide-react';
 import './Home.css';
 
-const FILTERS = ['All', 'Workshop', 'Hackathon', 'Competition', 'Seminar', 'Social'];
+const FILTERS = ['All', 'Announcement', 'Workshop', 'Hackathon', 'Competition', 'Seminar', 'Social'];
 
 const TypewriterText = ({ text }) => {
   const [displayedText, setDisplayedText] = useState('');
@@ -45,27 +46,33 @@ const AnimatedCounter = ({ value }) => {
 
 const Home = () => {
   const [eventsList, setEventsList] = useState([]);
+  const [feedList, setFeedList] = useState([]);
   const [societiesList, setSocietiesList] = useState([]);
   const [activeFilter, setActiveFilter] = useState('All');
   const [allSocieties, setAllSocieties] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
 
+  const location = useLocation();
   useEffect(() => {
     const fetchData = async () => {
       const evs = await db.getEvents();
+      const pst = await db.getAllPosts();
       const socs = await db.getSocieties();
-      setEventsList(evs);
+      setEventsList(evs); // keep for stats
       setSocietiesList(socs.slice(0, 5));
       setAllSocieties(socs);
+      // Combine events and posts and sort by newest first
+      const combined = [...evs, ...pst].sort((a, b) => new Date(b.rawDate) - new Date(a.rawDate));
+      setFeedList(combined);
     };
     fetchData();
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
-  }, []);
+  }, [location.pathname]);
 
   const filtered = activeFilter === 'All'
-    ? eventsList
-    : eventsList.filter(e => e.type === activeFilter);
+    ? feedList
+    : feedList.filter(item => (item.type || '').toLowerCase() === activeFilter.toLowerCase());
 
   const verifiedCount = allSocieties.filter(s => s.isVerified).length;
 

@@ -121,7 +121,7 @@ const SocietyProfile = () => {
                 {society.aboutUs || society.description}
               </p>
             </div>
-            
+
             <hr style={{ border: 'none', borderTop: '1px solid #E2E8F0' }} />
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
@@ -205,7 +205,7 @@ const SocietyProfile = () => {
             <div className="gallery-grid">
               {societyGallery.map((img, i) => (
                 <div key={i} className="gallery-item">
-                  <img src={img} alt={`Gallery ${i+1}`} />
+                  <img src={img} alt={`Gallery ${i + 1}`} />
                 </div>
               ))}
             </div>

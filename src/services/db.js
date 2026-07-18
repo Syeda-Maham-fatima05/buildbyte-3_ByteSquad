@@ -306,7 +306,7 @@ export const db = {
       .from('posts')
       .select('*, societies(name, logo_url)')
       .not('event_date', 'is', null)
-      .order('event_date', { ascending: true });
+      .order('event_date', { ascending: false });
     if (error) {
       console.error("Error fetching events:", error);
       return [];
@@ -330,11 +330,14 @@ export const db = {
         date: dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         time: dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
         venue: p.event_location || "Virtual / Campus Aud",
-        isToday
+        isToday,
+        rawDate: p.event_date
       };
     });
   },
   
+  // Returns a flat, chronologically sorted array of regular posts (non‑event posts)
+  // Returns posts grouped by society for dashboard view
   getPosts: async () => {
     const { data: posts, error } = await supabaseAdmin
       .from('posts')
@@ -364,21 +367,40 @@ export const db = {
     return grouped;
   },
 
-  addPost: async (societyId, title, caption, imageUrl) => {
-    const { data, error } = await supabaseAdmin
+
+
+  // Returns a flat, chronologically sorted array of regular posts (non‑event posts)
+  getAllPosts: async () => {
+    const { data: posts, error } = await supabaseAdmin
       .from('posts')
-      .insert({
-        society_id: societyId,
-        title,
-        caption,
-        image_urls: imageUrl ? [imageUrl] : [],
-        tags: ["Announcement"]
-      })
-      .select()
-      .single();
-    if (error) throw error;
-    return data;
+      .select('*, societies(name, logo_url)')
+      .is('event_date', null)
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error("Error fetching posts:", error);
+      return [];
+    }
+
+    // Map each post to a uniform shape that includes a raw timestamp for sorting
+    return posts.map(p => ({
+      id: p.id,
+      societyId: p.society_id,
+      societyName: p.societies?.name || "Society",
+      societyLogo: p.societies?.logo_url || "https://i.pravatar.cc/150",
+      title: p.title,
+      description: p.caption,
+      image: p.image_urls && p.image_urls[0] || null,
+      likes: 24,
+      comments: 5,
+      time: new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      rawDate: p.created_at,
+      // Use tags to derive type, fallback to "Post"
+      type: p.tags && p.tags[0] ? p.tags[0] : "Post",
+      venue: null
+    }));
   },
+
+
 
   addEvent: async (societyId, event) => {
     const dateStr = event.date + ' ' + (event.time || '12:00:00');
@@ -392,6 +414,23 @@ export const db = {
         event_date: new Date(dateStr).toISOString(),
         event_location: event.venue,
         tags: [event.type || "Workshop"]
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  // Add a regular post (non-event)
+  addPost: async (societyId, title, caption, imageUrl) => {
+    const { data, error } = await supabaseAdmin
+      .from('posts')
+      .insert({
+        society_id: societyId,
+        title,
+        caption,
+        image_urls: imageUrl ? [imageUrl] : [],
+        tags: ['Announcement']
       })
       .select()
       .single();
