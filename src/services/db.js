@@ -1,185 +1,469 @@
-import { societies as initialSocieties, events as initialEvents, posts as initialPosts, galleries as initialGalleries } from '../demoData';
+import { supabase, supabaseAdmin } from '../lib/supabaseClient';
 
-// Enhance initial societies with a specific 'aboutUs' section
-const defaultAboutUs = {
-  1: "Founded with the mission to foster technological innovation and excellence for the benefit of humanity, IEEE NED is the premier student branch of the Institute of Electrical and Electronics Engineers at NED University. We aim to bridge the gap between academic theory and professional implementation through hands-on technical training, research development, and networking opportunities. Over the past three decades, we have mentored thousands of students, turning ideas into real-world solutions.",
-  2: "The Robotics Club of NED University is a student-led innovation hub dedicated to building intelligent machines and raising engineering excellence. We engage in designing and developing line-following, semi-autonomous, and fully automated robotic systems. By hosting national bootcamps, workshops, and representing our university globally in RoboCup and national contests, we inspire and prepare students for careers in automation.",
-  3: "The Photography Society is the creative visual storyteller of the campus. Established to capture, preserve, and showcase the dynamic life of NED University, we teach camera operations, digital editing, and visual composition. Through regular photowalks, national exhibitions, and creative styling workshops, we help students discover and cultivate their artistic expression.",
-  4: "The Sports Society is dedicated to promoting physical fitness, athletic development, and teamwork across the campus. We host competitive inter-departmental leagues in football, cricket, basketball, and indoor sports. Our goal is to encourage a balanced lifestyle, build leadership skills through sports management, and discover representing talent for inter-university competitions.",
-  5: "Google Developer Groups on Campus (GDG) is a collaborative community for students interested in Google developer technologies and software engineering. We offer a developer ecosystem where students learn Flutter, Android, Cloud Platform, Firebase, and Web technologies. We organize study jams, hackathons, and invite industry speakers to guide students in building real-world apps.",
-  6: "The AI Society is at the forefront of machine intelligence education at NED. We focus on building deep conceptual and practical skills in Machine Learning, Deep Learning, Computer Vision, and Generative AI. Through hands-on bootcamps, research paper reading groups, and ML hackathons, we prepare students to lead in the AI-driven future."
+// Category mapping helper
+const getCategoryByName = (name = "") => {
+  const n = name.toLowerCase();
+  if (n.includes("code") || n.includes("robot") || n.includes("gdg") || n.includes("ai") || n.includes("tech") || n.includes("ieee")) return "Technical";
+  if (n.includes("photo") || n.includes("design") || n.includes("art") || n.includes("music") || n.includes("drama") || n.includes("literary") || n.includes("debat")) return "Arts";
+  if (n.includes("sport") || n.includes("cricket") || n.includes("football") || n.includes("athlet")) return "Sports";
+  return "Social";
 };
 
-const updatedSocieties = initialSocieties.map(s => ({
-  ...s,
-  aboutUs: defaultAboutUs[s.id] || `Welcome to ${s.name}. We are dedicated to providing excellent opportunities and fostering community growth for all students at our university. Join us to build skills, collaborate on exciting projects, and connect with peers.`
-}));
-
-const initialPending = [
-  {
-    id: 1001,
-    name: "Cybersecurity Club",
-    category: "Technical",
-    email: "cybersec@ned.edu.pk",
-    contact: "+92 345 1122334",
-    description: "Promoting ethical hacking, secure coding practices, and cybersecurity awareness among students. We plan to host Capture the Flag (CTF) challenges.",
-    aboutUs: "The Cybersecurity Club is established to train students in defense and offense security paradigms. We run workshops on penetration testing, malware analysis, and network security to prepare the next generation of cybersecurity professionals.",
-    logo: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=200&h=200",
-    cover: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=1200",
-    presidentName: "Hamza Farooq",
-    presidentEmail: "hamza.farooq@students.ned.edu.pk",
-    presidentRoll: "CS-2022-045",
-    department: "Computer Science",
-    contactNumber: "+92 345 1122334",
-    status: "Pending"
-  },
-  {
-    id: 1002,
-    name: "Literary & Debating Society",
-    category: "Arts",
-    email: "debating@ned.edu.pk",
-    contact: "+92 301 5566778",
-    description: "Developing public speaking, critical thinking, and literary appreciation through debates, writing workshops, and poetry slams.",
-    aboutUs: "The Literary & Debating Society provides a stage for voices to be heard, ideas to be challenged, and stories to be written. We represent our university at national model UN and debate tournaments, helping students build public eloquence.",
-    logo: "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=200&h=200",
-    cover: "https://images.unsplash.com/photo-1513001900722-370f803f498d?auto=format&fit=crop&q=80&w=1200",
-    presidentName: "Ayesha Khan",
-    presidentEmail: "ayesha.khan@students.ned.edu.pk",
-    presidentRoll: "SE-2022-018",
-    department: "Software Engineering",
-    contactNumber: "+92 301 5566778",
-    status: "Pending"
-  }
-];
-
-// Initialize LocalStorage if not present
-const getStored = (key, defaultVal) => {
-  try {
-    const val = localStorage.getItem(key);
-    if (!val || val === 'undefined') {
-      localStorage.setItem(key, JSON.stringify(defaultVal));
-      return defaultVal;
-    }
-    return JSON.parse(val);
-  } catch (error) {
-    console.error('Error reading localStorage for key', key, error);
-    return defaultVal;
-  }
-};
-
-const setStored = (key, val) => {
-  localStorage.setItem(key, JSON.stringify(val));
+// Cover mapping helper
+const getCoverByCategory = (cat) => {
+  if (cat === "Technical") return "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1200";
+  if (cat === "Arts") return "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&q=80&w=1200";
+  if (cat === "Sports") return "https://images.unsplash.com/photo-1526676037777-05a232554f77?auto=format&fit=crop&q=80&w=1200";
+  return "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1200";
 };
 
 export const db = {
   // Societies CRUD
-  getSocieties: () => {
-    return getStored('uc_societies', updatedSocieties);
+  getSocieties: async () => {
+    const { data: societies, error } = await supabase
+      .from('societies')
+      .select('*');
+    if (error) {
+      console.error("Error fetching societies:", error);
+      return [];
+    }
+    
+    // Fetch posts to compute counts
+    const { data: posts } = await supabase
+      .from('posts')
+      .select('society_id, event_date');
+
+    const countsMap = {};
+    if (posts) {
+      posts.forEach(p => {
+        if (!countsMap[p.society_id]) {
+          countsMap[p.society_id] = { posts: 0, events: 0 };
+        }
+        if (p.event_date) {
+          countsMap[p.society_id].events++;
+        } else {
+          countsMap[p.society_id].posts++;
+        }
+      });
+    }
+
+    return societies.map(s => {
+      const counts = countsMap[s.id] || { posts: 0, events: 0 };
+      const cat = getCategoryByName(s.name);
+      return {
+        id: s.id, // UUID string
+        name: s.name,
+        category: cat,
+        isVerified: s.status === 'approved',
+        followers: 1200 + (s.name.length * 150),
+        postsCount: counts.posts,
+        eventsCount: counts.events,
+        email: s.official_email,
+        contact: s.social_other || "+92 300 1234567",
+        description: s.about || "No description provided.",
+        logo: s.logo_url || "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=200&h=200",
+        cover: getCoverByCategory(cat),
+        presidentName: s.president_name || "President",
+        presidentEmail: s.president_email,
+        presidentPictureUrl: s.president_picture_url,
+        status: s.status,
+        team: [
+          { id: 1, name: s.president_name || "President", role: "President", avatar: s.president_picture_url || "https://i.pravatar.cc/150?img=12" }
+        ],
+        social_instagram: s.social_instagram,
+        social_linkedin: s.social_linkedin,
+        social_facebook: s.social_facebook,
+        social_other: s.social_other
+      };
+    });
   },
   
-  addSociety: (society) => {
-    const list = db.getSocieties();
-    const newSoc = {
-      ...society,
-      id: society.id || Date.now(),
-      followers: society.followers || 0,
-      postsCount: society.postsCount || 0,
-      eventsCount: society.eventsCount || 0,
-      isVerified: society.isVerified !== undefined ? society.isVerified : false,
-      logo: society.logo || "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=200&h=200",
-      cover: society.cover || "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1200",
-      team: society.team || [
-        { id: 1, name: society.presidentName || "President", role: "President", avatar: "https://i.pravatar.cc/150?img=12" }
-      ]
-    };
-    list.push(newSoc);
-    setStored('uc_societies', list);
-    return newSoc;
-  },
+  addSociety: async (society) => {
+    try {
+      const email = society.email || society.official_email;
+      const password = society.password || 'tempPassword123';
+      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        email: email,
+        password: password,
+        email_confirm: true
+      });
+      if (authError) throw authError;
 
-  updateSociety: (id, updatedData) => {
-    const list = db.getSocieties();
-    const index = list.findIndex(s => s.id === parseInt(id));
-    if (index !== -1) {
-      list[index] = { ...list[index], ...updatedData };
-      setStored('uc_societies', list);
-      return list[index];
+      const user_id = authData.user.id;
+      const { data, error } = await supabaseAdmin
+        .from('societies')
+        .insert({
+          id: user_id,
+          name: society.name,
+          official_email: email,
+          about: society.description || society.aboutUs,
+          logo_url: society.logo,
+          president_name: society.presidentName,
+          president_email: society.presidentEmail || `pres_${email}`,
+          president_picture_url: society.presidentPictureUrl || `https://ui-avatars.com/api/?name=${society.presidentName.replace(' ', '+')}`,
+          status: 'approved'
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      console.error("Error adding society:", err);
+      throw err;
     }
-    return null;
   },
 
-  deleteSociety: (id) => {
-    const list = db.getSocieties();
-    const filtered = list.filter(s => s.id !== parseInt(id));
-    setStored('uc_societies', filtered);
+  updateSociety: async (id, updatedData) => {
+    const payload = {
+      name: updatedData.name,
+      about: updatedData.description || updatedData.about || updatedData.aboutUs,
+      logo_url: updatedData.logo || updatedData.logo_url,
+      president_name: updatedData.presidentName || updatedData.president_name,
+      president_email: updatedData.presidentEmail || updatedData.president_email,
+      president_picture_url: updatedData.presidentPictureUrl || updatedData.president_picture_url,
+      social_instagram: updatedData.social_instagram,
+      social_linkedin: updatedData.social_linkedin,
+      social_facebook: updatedData.social_facebook,
+      social_other: updatedData.social_other
+    };
+    
+    // Remove undefined fields
+    Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
+
+    const { data, error } = await supabase
+      .from('societies')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating society:", error);
+      throw error;
+    }
+    return data;
+  },
+
+  deleteSociety: async (id) => {
+    // Delete from societies table
+    const { error: dbError } = await supabaseAdmin
+      .from('societies')
+      .delete()
+      .eq('id', id);
+    if (dbError) throw dbError;
+
+    // Delete corresponding Auth user
+    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(id);
+    if (authError) throw authError;
+
     return true;
   },
 
   // Pending Registrations
-  getPendingRegistrations: () => {
-    return getStored('uc_pending_regs', initialPending);
-  },
-
-  submitRegistration: (data) => {
-    const pending = db.getPendingRegistrations();
-    const newReg = {
-      ...data,
-      id: Date.now(),
-      status: "Pending",
-      logo: data.logo || "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=200&h=200",
-      cover: data.cover || "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1200",
-      aboutUs: data.aboutUs || `About ${data.societyName}: A student-led organization aimed at providing excellent opportunities and fostering community growth.`
-    };
-    pending.push(newReg);
-    setStored('uc_pending_regs', pending);
-    return newReg;
-  },
-
-  approveRegistration: (id) => {
-    const pending = db.getPendingRegistrations();
-    const reg = pending.find(r => r.id === parseInt(id));
-    if (reg) {
-      // Add to societies
-      db.addSociety({
-        name: reg.societyName,
-        category: reg.societyCategory,
-        email: reg.officialEmail || reg.email,
-        contact: reg.contactNumber || reg.contact,
-        description: reg.description,
-        aboutUs: reg.aboutUs,
-        logo: reg.logo,
-        cover: reg.cover,
-        presidentName: reg.presidentName,
-        presidentEmail: reg.presidentEmail,
-        presidentRoll: reg.presidentRoll,
-        department: reg.department,
-        isVerified: true
-      });
-      // Remove from pending
-      const filtered = pending.filter(r => r.id !== parseInt(id));
-      setStored('uc_pending_regs', filtered);
-      return true;
+  getPendingRegistrations: async () => {
+    const { data, error } = await supabase
+      .from('registration_requests')
+      .select('*')
+      .eq('status', 'pending');
+    if (error) {
+      console.error("Error fetching registrations:", error);
+      return [];
     }
-    return false;
+
+    return data.map(r => {
+      let parsed = {};
+      try {
+        parsed = JSON.parse(r.about);
+      } catch (e) {
+        parsed = { aboutUs: r.about, category: 'Technical' };
+      }
+
+      return {
+        id: r.id,
+        societyName: r.name,
+        officialEmail: r.official_email,
+        description: parsed.description || r.about,
+        aboutUs: parsed.aboutUs || r.about,
+        logo: r.logo_url || "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=200&h=200",
+        cover: getCoverByCategory(parsed.category || 'Technical'),
+        presidentName: r.president_name,
+        presidentEmail: r.president_email,
+        presidentRoll: parsed.roll || "SE-2022-001",
+        department: parsed.dept || "Software Engineering",
+        contactNumber: parsed.contact || "+92 300 1234567",
+        status: r.status,
+        password: parsed.password
+      };
+    });
   },
 
-  rejectRegistration: (id) => {
-    const pending = db.getPendingRegistrations();
-    const filtered = pending.filter(r => r.id !== parseInt(id));
-    setStored('uc_pending_regs', filtered);
+  submitRegistration: async (data) => {
+    // Package category, contact, password, roll, dept into the about field as JSON
+    const aboutJSON = JSON.stringify({
+      aboutUs: data.aboutUs,
+      description: data.description,
+      password: data.password,
+      category: data.societyCategory,
+      contact: data.contactNumber,
+      roll: data.presidentRoll,
+      dept: data.department
+    });
+
+    const { data: requestData, error } = await supabase
+      .from('registration_requests')
+      .insert({
+        name: data.societyName,
+        about: aboutJSON,
+        logo_url: data.logo,
+        official_email: data.officialEmail,
+        president_name: data.presidentName,
+        president_email: data.presidentEmail,
+        president_picture_url: data.logo,
+        status: 'pending'
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error submitting registration request:", error);
+      throw error;
+    }
+    return requestData;
+  },
+
+  approveRegistration: async (id) => {
+    try {
+      // 1. Fetch registration request
+      const { data: req, error: fetchErr } = await supabaseAdmin
+        .from('registration_requests')
+        .select('*')
+        .eq('id', id)
+        .single();
+      if (fetchErr) throw fetchErr;
+
+      let parsed = {};
+      try {
+        parsed = JSON.parse(req.about);
+      } catch (e) {
+        parsed = { aboutUs: req.about, password: 'tempPassword123' };
+      }
+
+      // 2. Create Auth User
+      const { data: authData, error: authErr } = await supabaseAdmin.auth.admin.createUser({
+        email: req.official_email,
+        password: parsed.password || 'tempPassword123',
+        email_confirm: true
+      });
+      if (authErr) throw authErr;
+
+      const user_id = authData.user.id;
+
+      // 3. Insert into societies
+      const { error: insertErr } = await supabaseAdmin
+        .from('societies')
+        .insert({
+          id: user_id,
+          name: req.name,
+          official_email: req.official_email,
+          about: parsed.aboutUs || parsed.description || req.about,
+          logo_url: req.logo_url,
+          president_name: req.president_name,
+          president_email: req.president_email,
+          president_picture_url: req.president_picture_url,
+          status: 'approved'
+        });
+      if (insertErr) throw insertErr;
+
+      // 4. Update request status to approved
+      const { error: updateErr } = await supabaseAdmin
+        .from('registration_requests')
+        .update({ status: 'approved' })
+        .eq('id', id);
+      if (updateErr) throw updateErr;
+
+      return true;
+    } catch (err) {
+      console.error("Error approving registration:", err);
+      throw err;
+    }
+  },
+
+  rejectRegistration: async (id) => {
+    const { error } = await supabaseAdmin
+      .from('registration_requests')
+      .update({ status: 'rejected' })
+      .eq('id', id);
+    if (error) {
+      console.error("Error rejecting registration:", error);
+      throw error;
+    }
     return true;
   },
 
-  // Events & Posts (cached for stability)
-  getEvents: () => {
-    return getStored('uc_events', initialEvents);
+  // Events & Posts
+  getEvents: async () => {
+    const { data: posts, error } = await supabase
+      .from('posts')
+      .select('*, societies(name, logo_url)')
+      .not('event_date', 'is', null)
+      .order('event_date', { ascending: true });
+    if (error) {
+      console.error("Error fetching events:", error);
+      return [];
+    }
+
+    return posts.map(p => {
+      const dateObj = new Date(p.event_date);
+      const isToday = dateObj.toDateString() === new Date().toDateString();
+      return {
+        id: p.id,
+        societyId: p.society_id,
+        societyName: p.societies?.name || "Society",
+        societyLogo: p.societies?.logo_url || "https://i.pravatar.cc/150",
+        title: p.title,
+        description: p.caption,
+        image: p.image_urls && p.image_urls[0] || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80",
+        likes: 12,
+        comments: 2,
+        saved: false,
+        type: p.tags && p.tags[0] || "Workshop",
+        date: dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        time: dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        venue: p.event_location || "Virtual / Campus Aud",
+        isToday
+      };
+    });
   },
   
-  getPosts: () => {
-    return getStored('uc_posts', initialPosts);
+  getPosts: async () => {
+    const { data: posts, error } = await supabase
+      .from('posts')
+      .select('*, societies(name, logo_url)')
+      .is('event_date', null)
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error("Error fetching posts:", error);
+      return {};
+    }
+
+    const grouped = {};
+    posts.forEach(p => {
+      if (!grouped[p.society_id]) {
+        grouped[p.society_id] = [];
+      }
+      grouped[p.society_id].push({
+        id: p.id,
+        title: p.title,
+        caption: p.caption,
+        image: p.image_urls && p.image_urls[0] || null,
+        likes: 24,
+        comments: 5,
+        time: new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      });
+    });
+    return grouped;
   },
 
-  getGalleries: () => {
-    return getStored('uc_galleries', initialGalleries);
+  addPost: async (societyId, title, caption, imageUrl) => {
+    const { data, error } = await supabase
+      .from('posts')
+      .insert({
+        society_id: societyId,
+        title,
+        caption,
+        image_urls: imageUrl ? [imageUrl] : [],
+        tags: ["Announcement"]
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  addEvent: async (societyId, event) => {
+    const dateStr = event.date + ' ' + (event.time || '12:00:00');
+    const { data, error } = await supabase
+      .from('posts')
+      .insert({
+        society_id: societyId,
+        title: event.title,
+        caption: event.description,
+        image_urls: event.image ? [event.image] : [],
+        event_date: new Date(dateStr).toISOString(),
+        event_location: event.venue,
+        tags: [event.type || "Workshop"]
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  deletePost: async (postId) => {
+    const { error } = await supabase
+      .from('posts')
+      .delete()
+      .eq('id', postId);
+    if (error) throw error;
+    return true;
+  },
+
+  getGalleries: async () => {
+    const { data: posts, error } = await supabase
+      .from('posts')
+      .select('society_id, image_urls')
+      .not('image_urls', 'is', null);
+    if (error) {
+      console.error("Error fetching galleries:", error);
+      return {};
+    }
+
+    const galleries = {};
+    posts.forEach(p => {
+      if (p.image_urls && Array.isArray(p.image_urls) && p.image_urls.length > 0) {
+        if (!galleries[p.society_id]) {
+          galleries[p.society_id] = [];
+        }
+        p.image_urls.forEach(url => {
+          if (url) galleries[p.society_id].push(url);
+        });
+      }
+    });
+    return galleries;
+  },
+
+  addGalleryImage: async (societyId, imageUrl) => {
+    const { data, error } = await supabase
+      .from('posts')
+      .insert({
+        society_id: societyId,
+        title: 'Gallery Image',
+        caption: 'Uploaded via gallery',
+        image_urls: [imageUrl],
+        tags: ["Gallery"]
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  deleteGalleryImage: async (societyId, imageUrl) => {
+    // Find the post that has this image_url and delete it
+    const { data: posts, error } = await supabase
+      .from('posts')
+      .select('id')
+      .eq('society_id', societyId)
+      .contains('image_urls', [imageUrl]);
+    
+    if (error) throw error;
+    if (posts && posts.length > 0) {
+      const { error: delError } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', posts[0].id);
+      if (delError) throw delError;
+    }
+    return true;
   }
 };

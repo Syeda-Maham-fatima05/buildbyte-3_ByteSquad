@@ -27,30 +27,35 @@ const SocietyDashboard = () => {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const loggedStr = sessionStorage.getItem('uc_society_logged');
-    if (!loggedStr) { navigate('/society-login'); return; }
-    const loggedSociety = JSON.parse(loggedStr);
-    const list = db.getSocieties();
-    const current = list.find(s => s.id === loggedSociety.id);
-    if (!current) { sessionStorage.removeItem('uc_society_logged'); navigate('/society-login'); return; }
-    loadSociety(current);
+    const checkAndLoad = async () => {
+      const loggedStr = sessionStorage.getItem('uc_society_logged');
+      if (!loggedStr) { navigate('/society-login'); return; }
+      const loggedSociety = JSON.parse(loggedStr);
+      const list = await db.getSocieties();
+      const current = list.find(s => s.id === loggedSociety.id);
+      if (!current) { sessionStorage.removeItem('uc_society_logged'); navigate('/society-login'); return; }
+      await loadSociety(current);
+    };
+    checkAndLoad();
   }, [navigate]);
 
-  const loadSociety = (soc) => {
+  const loadSociety = async (soc) => {
     setSociety(soc);
     setEditForm({ ...soc });
-    const allPosts = db.getPosts();
+    const allPosts = await db.getPosts();
     setPosts(allPosts[soc.id] || []);
-    setEvents(db.getEvents().filter(e => e.societyId === soc.id));
-    setGallery(db.getGalleries()[soc.id] || []);
+    const allEvents = await db.getEvents();
+    setEvents(allEvents.filter(e => e.societyId === soc.id));
+    const allGalleries = await db.getGalleries();
+    setGallery(allGalleries[soc.id] || []);
   };
 
-  const refreshAll = () => {
-    const list = db.getSocieties();
+  const refreshAll = async () => {
+    const list = await db.getSocieties();
     const current = list.find(s => s.id === society.id);
     if (current) {
       sessionStorage.setItem('uc_society_logged', JSON.stringify(current));
-      loadSociety(current);
+      await loadSociety(current);
     }
   };
 
@@ -60,101 +65,101 @@ const SocietyDashboard = () => {
   };
 
   /* ── Edit Society Info ── */
-  const handleSaveSociety = (e) => {
+  const handleSaveSociety = async (e) => {
     e.preventDefault();
     setSaving(true);
-    setTimeout(() => {
-      db.updateSociety(society.id, editForm);
-      setSaving(false);
+    try {
+      await db.updateSociety(society.id, editForm);
       setEditingSociety(false);
-      refreshAll();
+      await refreshAll();
       alert('Society info updated successfully!');
-    }, 500);
+    } catch (err) {
+      alert(err.message || 'Failed to update society info.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   /* ── Posts ── */
-  const handleAddPost = (e) => {
+  const handleAddPost = async (e) => {
     e.preventDefault();
-    const allPosts = db.getPosts();
-    const existing = allPosts[society.id] || [];
-    const newPost = {
-      id: Date.now(),
-      title: postForm.title,
-      image: postForm.image || null,
-      likes: 0,
-      comments: 0,
-      time: 'Just now'
-    };
-    allPosts[society.id] = [newPost, ...existing];
-    localStorage.setItem('uc_posts', JSON.stringify(allPosts));
-    setPosts(allPosts[society.id]);
-    setPostForm({ title: '', image: '', time: 'Just now' });
-    setShowPostForm(false);
+    try {
+      await db.addPost(society.id, postForm.title, postForm.title, postForm.image);
+      const allPosts = await db.getPosts();
+      setPosts(allPosts[society.id] || []);
+      setPostForm({ title: '', image: '', time: 'Just now' });
+      setShowPostForm(false);
+      alert('Post created successfully!');
+    } catch (err) {
+      alert(err.message || 'Failed to create post.');
+    }
   };
 
-  const handleDeletePost = (postId) => {
+  const handleDeletePost = async (postId) => {
     if (!window.confirm('Delete this post?')) return;
-    const allPosts = db.getPosts();
-    allPosts[society.id] = (allPosts[society.id] || []).filter(p => p.id !== postId);
-    localStorage.setItem('uc_posts', JSON.stringify(allPosts));
-    setPosts(allPosts[society.id]);
+    try {
+      await db.deletePost(postId);
+      const allPosts = await db.getPosts();
+      setPosts(allPosts[society.id] || []);
+      alert('Post deleted!');
+    } catch (err) {
+      alert(err.message || 'Failed to delete post.');
+    }
   };
 
   /* ── Events ── */
-  const handleAddEvent = (e) => {
+  const handleAddEvent = async (e) => {
     e.preventDefault();
-    const allEvents = db.getEvents();
-    const newEvent = {
-      id: Date.now(),
-      societyId: society.id,
-      societyName: society.name,
-      societyLogo: society.logo,
-      isVerified: society.isVerified,
-      title: eventForm.title,
-      description: eventForm.description,
-      date: eventForm.date,
-      time: eventForm.time,
-      venue: eventForm.venue,
-      type: eventForm.type,
-      image: eventForm.image || null,
-      likes: 0,
-      comments: 0,
-      isTrending: false,
-      isToday: false
-    };
-    const updated = [newEvent, ...allEvents];
-    localStorage.setItem('uc_events', JSON.stringify(updated));
-    setEvents(updated.filter(ev => ev.societyId === society.id));
-    setEventForm({ title: '', description: '', date: '', time: '', venue: '', type: 'Workshop', image: '' });
-    setShowEventForm(false);
+    try {
+      await db.addEvent(society.id, eventForm);
+      const allEvents = await db.getEvents();
+      setEvents(allEvents.filter(ev => ev.societyId === society.id));
+      setEventForm({ title: '', description: '', date: '', time: '', venue: '', type: 'Workshop', image: '' });
+      setShowEventForm(false);
+      alert('Event created successfully!');
+    } catch (err) {
+      alert(err.message || 'Failed to create event.');
+    }
   };
 
-  const handleDeleteEvent = (evId) => {
+  const handleDeleteEvent = async (evId) => {
     if (!window.confirm('Delete this event?')) return;
-    const allEvents = db.getEvents().filter(ev => ev.id !== evId);
-    localStorage.setItem('uc_events', JSON.stringify(allEvents));
-    setEvents(allEvents.filter(ev => ev.societyId === society.id));
+    try {
+      await db.deletePost(evId);
+      const allEvents = await db.getEvents();
+      setEvents(allEvents.filter(ev => ev.societyId === society.id));
+      alert('Event deleted!');
+    } catch (err) {
+      alert(err.message || 'Failed to delete event.');
+    }
   };
 
   /* ── Gallery ── */
-  const handleAddGallery = (e) => {
+  const handleAddGallery = async (e) => {
     e.preventDefault();
     if (!galleryUrl.trim()) return;
-    const allGalleries = db.getGalleries();
-    const existing = allGalleries[society.id] || [];
-    allGalleries[society.id] = [...existing, galleryUrl.trim()];
-    localStorage.setItem('uc_galleries', JSON.stringify(allGalleries));
-    setGallery(allGalleries[society.id]);
-    setGalleryUrl('');
+    try {
+      await db.addGalleryImage(society.id, galleryUrl.trim());
+      const allGalleries = await db.getGalleries();
+      setGallery(allGalleries[society.id] || []);
+      setGalleryUrl('');
+      alert('Image added to gallery!');
+    } catch (err) {
+      alert(err.message || 'Failed to add image to gallery.');
+    }
   };
 
-  const handleDeleteGallery = (idx) => {
-    const allGalleries = db.getGalleries();
-    const existing = allGalleries[society.id] || [];
-    existing.splice(idx, 1);
-    allGalleries[society.id] = existing;
-    localStorage.setItem('uc_galleries', JSON.stringify(allGalleries));
-    setGallery([...existing]);
+  const handleDeleteGallery = async (idx) => {
+    const targetUrl = gallery[idx];
+    if (!window.confirm('Delete this photo from gallery?')) return;
+    try {
+      await db.deleteGalleryImage(society.id, targetUrl);
+      const allGalleries = await db.getGalleries();
+      setGallery(allGalleries[society.id] || []);
+      alert('Photo deleted!');
+    } catch (err) {
+      alert(err.message || 'Failed to delete photo.');
+    }
   };
 
   if (!society) return (

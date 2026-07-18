@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Lock, UserCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../services/db';
+import { supabase } from '../lib/supabaseClient';
 import './AdminLogin.css'; // Reusing admin login styles
 
 const SocietyLogin = () => {
@@ -10,31 +11,39 @@ const SocietyLogin = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     
-    // Simulate network request
-    setTimeout(() => {
-      const societies = db.getSocieties();
-      // Check if the email matches any active society's email or president email
-      const society = societies.find(s => 
-        s.email === creds.email || 
-        s.presidentEmail === creds.email
-      );
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: creds.email,
+        password: creds.password
+      });
+      
+      if (authError) throw authError;
 
-      // We're doing a simplified check for demo purposes.
-      // In a real app, you'd check passwords properly against a backend.
-      if (society && creds.password) {
-        // Successful login
-        sessionStorage.setItem('uc_society_logged', JSON.stringify(society));
-        navigate('/society/dashboard');
+      const societies = await db.getSocieties();
+      const society = societies.find(s => s.id === data.user.id);
+
+      if (society) {
+        if (society.status === 'approved') {
+          sessionStorage.setItem('uc_society_logged', JSON.stringify(society));
+          navigate('/society/dashboard');
+        } else {
+          setError('Your society application is pending approval.');
+          await supabase.auth.signOut();
+        }
       } else {
-        setError('Invalid credentials or society not found.');
+        setError('Society profile not found.');
+        await supabase.auth.signOut();
       }
+    } catch (err) {
+      setError(err.message || 'Invalid credentials or login failed.');
+    } finally {
       setLoading(false);
-    }, 700);
+    }
   };
 
   return (

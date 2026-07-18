@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { db } from '../services/db';
-import './register.css';
+import './Register.css';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -19,31 +19,42 @@ const Register = () => {
     password: ''
   });
 
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     
-    // Save to the local database list of pending registrations
-    db.submitRegistration({
-      societyName: formData.societyName,
-      societyCategory: formData.societyCategory,
-      officialEmail: formData.officialEmail,
-      presidentName: formData.presidentName,
-      presidentEmail: formData.presidentEmail,
-      presidentRoll: formData.presidentRoll,
-      department: formData.department,
-      contactNumber: formData.contactNumber,
-      description: formData.description,
-      aboutUs: formData.aboutUs || `We are ${formData.societyName}, dedicated to academic and extracurricular growth in our field.`,
-      logo: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=200&h=200",
-      cover: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1200"
-    });
+    try {
+      await db.submitRegistration({
+        societyName: formData.societyName,
+        societyCategory: formData.societyCategory,
+        officialEmail: formData.officialEmail,
+        presidentName: formData.presidentName,
+        presidentEmail: formData.presidentEmail,
+        presidentRoll: formData.presidentRoll,
+        department: formData.department,
+        contactNumber: formData.contactNumber,
+        description: formData.description,
+        password: formData.password,
+        aboutUs: formData.aboutUs || `We are ${formData.societyName}, dedicated to academic and extracurricular growth in our field.`,
+        logo: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=200&h=200",
+        cover: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1200"
+      });
 
-    alert('Registration application submitted successfully! It has been sent to the secret Admin panel at /admin for approval.');
-    navigate('/directory');
+      alert('Registration application submitted successfully! It has been sent to the secret Admin panel at /admin for approval.');
+      navigate('/directory');
+    } catch (err) {
+      setError(err.message || 'Failed to submit registration request.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -53,6 +64,8 @@ const Register = () => {
           <h2>Register Society</h2>
           <p className="text-muted">Submit your application to list your society on UniConnect.</p>
         </div>
+
+        {error && <div className="error-message animate-fade-in" style={{ padding: '10px', background: '#fee2e2', color: '#991b1b', borderRadius: '6px', marginBottom: '15px', fontSize: '0.9rem' }}>⚠️ {error}</div>}
 
         <form onSubmit={handleSubmit} className="register-form">
           <div className="form-section">
@@ -125,7 +138,9 @@ const Register = () => {
             </div>
           </div>
 
-          <button type="submit" className="btn btn-primary w-full submit-btn">Submit Registration</button>
+          <button type="submit" className="btn btn-primary w-full submit-btn" disabled={loading}>
+            {loading ? 'Submitting Application...' : 'Submit Registration'}
+          </button>
         </form>
       </div>
     </div>

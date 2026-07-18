@@ -14,15 +14,21 @@ const SocietyProfile = () => {
   const [societyGallery, setSocietyGallery] = useState([]);
 
   useEffect(() => {
-    const list = db.getSocieties();
-    const found = list.find(s => s.id === parseInt(id));
-    if (found) {
-      setSociety(found);
-      const evs = db.getEvents().filter(e => e.societyId === found.id);
-      setSocietyEvents(evs);
-      setSocietyPosts(db.getPosts()[found.id] || []);
-      setSocietyGallery(db.getGalleries()[found.id] || []);
-    }
+    const fetchData = async () => {
+      const list = await db.getSocieties();
+      const found = list.find(s => s.id === id);
+      if (found) {
+        setSociety(found);
+        const allEvs = await db.getEvents();
+        const evs = allEvs.filter(e => e.societyId === found.id);
+        setSocietyEvents(evs);
+        const allPosts = await db.getPosts();
+        setSocietyPosts(allPosts[found.id] || []);
+        const allGalleries = await db.getGalleries();
+        setSocietyGallery(allGalleries[found.id] || []);
+      }
+    };
+    fetchData();
   }, [id]);
 
   if (!society) {

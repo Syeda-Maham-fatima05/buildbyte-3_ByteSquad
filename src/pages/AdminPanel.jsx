@@ -37,7 +37,6 @@ const AdminPanel = () => {
   });
 
   useEffect(() => {
-    // Check if admin is logged in from session storage
     const logged = sessionStorage.getItem('uc_admin_logged');
     if (logged === 'true') {
       setIsAdminLoggedIn(true);
@@ -45,9 +44,13 @@ const AdminPanel = () => {
     loadData();
   }, []);
 
-  const loadData = () => {
-    setPendingRegs(db.getPendingRegistrations());
-    setSocietiesList(db.getSocieties());
+  const loadData = async () => {
+    const [regs, socs] = await Promise.all([
+      db.getPendingRegistrations(),
+      db.getSocieties()
+    ]);
+    setPendingRegs(regs);
+    setSocietiesList(socs);
   };
 
   const handleAdminLogin = () => {
@@ -62,45 +65,53 @@ const AdminPanel = () => {
   };
 
   // Pending Actions
-  const handleApprove = (id) => {
-    const success = db.approveRegistration(id);
-    if (success) {
-      alert('Society registration application approved successfully!');
-      loadData();
+  const handleApprove = async (id) => {
+    try {
+      await db.approveRegistration(id);
+      alert('Society registration application approved successfully! Login credentials have been created.');
+      await loadData();
+    } catch (err) {
+      alert('Error approving registration: ' + (err.message || 'Unknown error'));
     }
   };
 
-  const handleReject = (id) => {
+  const handleReject = async (id) => {
     if (window.confirm('Are you sure you want to reject this registration application?')) {
-      db.rejectRegistration(id);
-      alert('Registration application rejected.');
-      loadData();
+      try {
+        await db.rejectRegistration(id);
+        alert('Registration application rejected.');
+        await loadData();
+      } catch (err) {
+        alert('Error rejecting registration: ' + (err.message || 'Unknown error'));
+      }
     }
   };
 
   // CRUD: Create
-  const handleCreateSubmit = (e) => {
+  const handleCreateSubmit = async (e) => {
     e.preventDefault();
-    db.addSociety({
-      name: formFields.name,
-      category: formFields.category,
-      email: formFields.email,
-      contact: formFields.contact,
-      description: formFields.description,
-      aboutUs: formFields.aboutUs,
-      logo: formFields.logo || "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=200&h=200",
-      cover: formFields.cover || "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1200",
-      presidentName: formFields.presidentName,
-      presidentEmail: formFields.presidentEmail,
-      presidentRoll: formFields.presidentRoll,
-      department: formFields.department,
-      followers: parseInt(formFields.followers) || 0,
-      isVerified: true
-    });
-    alert('Society created successfully!');
-    setShowCreateModal(false);
-    resetForm();
-    loadData();
+    try {
+      await db.addSociety({
+        name: formFields.name,
+        email: formFields.email,
+        contact: formFields.contact,
+        description: formFields.description,
+        aboutUs: formFields.aboutUs,
+        logo: formFields.logo || 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=200&h=200',
+        presidentName: formFields.presidentName,
+        presidentEmail: formFields.presidentEmail,
+        presidentRoll: formFields.presidentRoll,
+        department: formFields.department,
+        password: 'society@2026',
+        isVerified: true
+      });
+      alert('Society created successfully! Temporary password: society@2026');
+      setShowCreateModal(false);
+      resetForm();
+      await loadData();
+    } catch (err) {
+      alert('Error creating society: ' + (err.message || 'Unknown error'));
+    }
   };
 
   // CRUD: Edit
@@ -124,35 +135,38 @@ const AdminPanel = () => {
     setShowEditModal(true);
   };
 
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
-    db.updateSociety(currentEditingSociety.id, {
-      name: formFields.name,
-      category: formFields.category,
-      email: formFields.email,
-      contact: formFields.contact,
-      description: formFields.description,
-      aboutUs: formFields.aboutUs,
-      logo: formFields.logo,
-      cover: formFields.cover,
-      presidentName: formFields.presidentName,
-      presidentEmail: formFields.presidentEmail,
-      presidentRoll: formFields.presidentRoll,
-      department: formFields.department,
-      followers: parseInt(formFields.followers) || 0
-    });
-    alert('Society updated successfully!');
-    setShowEditModal(false);
-    resetForm();
-    loadData();
+    try {
+      await db.updateSociety(currentEditingSociety.id, {
+        name: formFields.name,
+        email: formFields.email,
+        contact: formFields.contact,
+        description: formFields.description,
+        aboutUs: formFields.aboutUs,
+        logo: formFields.logo,
+        presidentName: formFields.presidentName,
+        presidentEmail: formFields.presidentEmail,
+      });
+      alert('Society updated successfully!');
+      setShowEditModal(false);
+      resetForm();
+      await loadData();
+    } catch (err) {
+      alert('Error updating society: ' + (err.message || 'Unknown error'));
+    }
   };
 
   // CRUD: Delete
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this society? This action is permanent.')) {
-      db.deleteSociety(id);
-      alert('Society deleted successfully.');
-      loadData();
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this society? This action is permanent and will remove their login access.')) {
+      try {
+        await db.deleteSociety(id);
+        alert('Society deleted successfully.');
+        await loadData();
+      } catch (err) {
+        alert('Error deleting society: ' + (err.message || 'Unknown error'));
+      }
     }
   };
 

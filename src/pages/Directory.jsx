@@ -9,7 +9,11 @@ const Directory = () => {
   const [societiesList, setSocietiesList] = useState([]);
 
   useEffect(() => {
-    setSocietiesList(db.getSocieties());
+    const fetch = async () => {
+      const data = await db.getSocieties();
+      setSocietiesList(data);
+    };
+    fetch();
   }, []);
 
   const filteredSocieties = societiesList.filter(society => {

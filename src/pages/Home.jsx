@@ -51,11 +51,14 @@ const Home = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
-    const evs = db.getEvents();
-    const socs = db.getSocieties();
-    setEventsList(evs);
-    setSocietiesList(socs.slice(0, 5));
-    setAllSocieties(socs);
+    const fetchData = async () => {
+      const evs = await db.getEvents();
+      const socs = await db.getSocieties();
+      setEventsList(evs);
+      setSocietiesList(socs.slice(0, 5));
+      setAllSocieties(socs);
+    };
+    fetchData();
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);

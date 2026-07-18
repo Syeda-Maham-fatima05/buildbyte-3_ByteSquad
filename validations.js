@@ -1,6 +1,6 @@
 // Check if field is empty
 export const isEmpty = (value) => {
-  return !value || value.trim() === "";
+  return value.trim() === "";
 };
 
 // Validate email
@@ -11,12 +11,13 @@ export const isValidEmail = (email) => {
 
 // Validate university email
 export const isUniversityEmail = (email) => {
-  return email.endsWith("@youruniversity.edu.pk") || email.endsWith(".edu.pk") || email.endsWith("@ned.edu.pk");
+  return email.endsWith("@youruniversity.edu.pk");
+  // Replace with your actual university domain
 };
 
 // Validate password
 export const isStrongPassword = (password) => {
-  return password && password.length >= 6;
+  return password.length >= 6;
 };
 
 // Validate URL
@@ -41,12 +42,12 @@ export const isFutureDate = (date) => {
 
 // Validate event title
 export const isValidTitle = (title) => {
-  return title && title.trim().length >= 3;
+  return title.trim().length >= 3;
 };
 
 // Validate description
 export const isValidDescription = (description) => {
-  return description && description.trim().length >= 10;
+  return description.trim().length >= 10;
 };
 
 // Validate registration link
@@ -57,13 +58,13 @@ export const isValidRegistrationLink = (link) => {
 
 // Validate phone number
 export const isValidPhone = (phone) => {
-  const regex = /^[0-9+ ]{10,15}$/;
+  const regex = /^[0-9]{10,15}$/;
   return regex.test(phone);
 };
 
 // Validate image URL
 export const isImageURL = (url) => {
-  return /\.(jpg|jpeg|png|gif|webp)$/i.test(url) || url.startsWith("http");
+  return /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
 };
 
 // Validate event form

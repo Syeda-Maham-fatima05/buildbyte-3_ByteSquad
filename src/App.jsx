@@ -7,41 +7,38 @@ import Background from './components/Background';
 import './App.css';
 import Home from './pages/Home';
 import Directory from './pages/Directory';
-import Register from './pages/register';
+import Register from './pages/Register';
 import SocietyProfile from './pages/SocietyProfile';
 import AdminPanel from './pages/AdminPanel';
 import SocietyLogin from './pages/SocietyLogin';
 import SocietyDashboard from './pages/SocietyDashboard';
 
+const PageWrapper = ({ children }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -20 }}
+    transition={{ duration: 0.3, ease: 'easeOut' }}
+  >
+    {children}
+  </motion.div>
+);
+
 const AnimatedRoutes = () => {
   const location = useLocation();
-  
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
         <Route path="/directory" element={<PageWrapper><Directory /></PageWrapper>} />
         <Route path="/register" element={<PageWrapper><Register /></PageWrapper>} />
-        <Route path="/society/:id" element={<PageWrapper><SocietyProfile /></PageWrapper>} />
         <Route path="/admin" element={<PageWrapper><AdminPanel /></PageWrapper>} />
-        <Route path="/ADMIN" element={<PageWrapper><AdminPanel /></PageWrapper>} />
         <Route path="/society-login" element={<PageWrapper><SocietyLogin /></PageWrapper>} />
+        {/* /society/dashboard must come BEFORE /society/:id to avoid conflict */}
         <Route path="/society/dashboard" element={<PageWrapper><SocietyDashboard /></PageWrapper>} />
+        <Route path="/society/:id" element={<PageWrapper><SocietyProfile /></PageWrapper>} />
       </Routes>
     </AnimatePresence>
-  );
-};
-
-const PageWrapper = ({ children }) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
-    >
-      {children}
-    </motion.div>
   );
 };
 
@@ -71,7 +68,7 @@ function App() {
     <Router>
       <div className="app-container">
         <Background />
-        
+
         {/* Scroll Progress Bar */}
         <motion.div
           className="scroll-progress-bar"
@@ -79,7 +76,7 @@ function App() {
         />
 
         <Navbar />
-        
+
         <main className="main-content">
           <AnimatedRoutes />
         </main>
@@ -95,6 +92,7 @@ function App() {
               whileTap={{ scale: 0.9 }}
               onClick={scrollToTop}
               className="scroll-to-top-btn glass"
+              aria-label="Scroll to top"
             >
               <ChevronUp size={24} />
             </motion.button>
