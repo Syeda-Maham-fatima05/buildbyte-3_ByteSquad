@@ -20,7 +20,7 @@ const getCoverByCategory = (cat) => {
 export const db = {
   // Societies CRUD
   getSocieties: async () => {
-    const { data: societies, error } = await supabase
+    const { data: societies, error } = await supabaseAdmin
       .from('societies')
       .select('*');
     if (error) {
@@ -29,7 +29,7 @@ export const db = {
     }
     
     // Fetch posts to compute counts
-    const { data: posts } = await supabase
+    const { data: posts } = await supabaseAdmin
       .from('posts')
       .select('society_id, event_date');
 
@@ -130,7 +130,7 @@ export const db = {
     // Remove undefined fields
     Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('societies')
       .update(payload)
       .eq('id', id)
@@ -161,7 +161,7 @@ export const db = {
 
   // Pending Registrations
   getPendingRegistrations: async () => {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('registration_requests')
       .select('*')
       .eq('status', 'pending');
@@ -209,7 +209,7 @@ export const db = {
       dept: data.department
     });
 
-    const { data: requestData, error } = await supabase
+    const { data: requestData, error } = await supabaseAdmin
       .from('registration_requests')
       .insert({
         name: data.societyName,
@@ -302,7 +302,7 @@ export const db = {
 
   // Events & Posts
   getEvents: async () => {
-    const { data: posts, error } = await supabase
+    const { data: posts, error } = await supabaseAdmin
       .from('posts')
       .select('*, societies(name, logo_url)')
       .not('event_date', 'is', null)
@@ -336,7 +336,7 @@ export const db = {
   },
   
   getPosts: async () => {
-    const { data: posts, error } = await supabase
+    const { data: posts, error } = await supabaseAdmin
       .from('posts')
       .select('*, societies(name, logo_url)')
       .is('event_date', null)
@@ -365,7 +365,7 @@ export const db = {
   },
 
   addPost: async (societyId, title, caption, imageUrl) => {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('posts')
       .insert({
         society_id: societyId,
@@ -382,7 +382,7 @@ export const db = {
 
   addEvent: async (societyId, event) => {
     const dateStr = event.date + ' ' + (event.time || '12:00:00');
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('posts')
       .insert({
         society_id: societyId,
@@ -400,7 +400,7 @@ export const db = {
   },
 
   deletePost: async (postId) => {
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('posts')
       .delete()
       .eq('id', postId);
@@ -409,7 +409,7 @@ export const db = {
   },
 
   getGalleries: async () => {
-    const { data: posts, error } = await supabase
+    const { data: posts, error } = await supabaseAdmin
       .from('posts')
       .select('society_id, image_urls')
       .not('image_urls', 'is', null);
@@ -433,7 +433,7 @@ export const db = {
   },
 
   addGalleryImage: async (societyId, imageUrl) => {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('posts')
       .insert({
         society_id: societyId,
@@ -450,7 +450,7 @@ export const db = {
 
   deleteGalleryImage: async (societyId, imageUrl) => {
     // Find the post that has this image_url and delete it
-    const { data: posts, error } = await supabase
+    const { data: posts, error } = await supabaseAdmin
       .from('posts')
       .select('id')
       .eq('society_id', societyId)
@@ -458,7 +458,7 @@ export const db = {
     
     if (error) throw error;
     if (posts && posts.length > 0) {
-      const { error: delError } = await supabase
+      const { error: delError } = await supabaseAdmin
         .from('posts')
         .delete()
         .eq('id', posts[0].id);
