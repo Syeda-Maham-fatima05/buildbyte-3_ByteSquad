@@ -1,0 +1,45 @@
+/* ── App shell ───────────────────────────── */
+.app-container {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* All pages sit below the 58px navbar */
+.main-content {
+  position: relative;
+  z-index: 1;
+  padding-top: 58px;
+  min-height: calc(100vh - 58px);
+}
+
+/* ── Scroll Progress Bar ────────────────── */
+.scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--primary-ieee-blue);
+  transform-origin: 0%;
+  z-index: 9999;
+}
+
+/* ── Scroll to Top Button ───────────────── */
+.scroll-to-top-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-deep-blue);
+  cursor: pointer;
+  z-index: 1000;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  padding: 0;
+}

@@ -1,0 +1,94 @@
+/* ── Register Page ───────────────────────── */
+.register-container {
+  padding-top: 2rem;
+  padding-bottom: 3.5rem;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.register-card {
+  padding: 1.75rem;
+  background: #1A262D; /* Darkest color from palette */
+  color: #F5EFEB;
+  border-color: rgba(245, 239, 235, 0.1);
+  box-shadow: var(--shadow-lg);
+}
+
+@media (min-width: 768px) {
+  .register-card { padding: 2.5rem; }
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.register-header h2 {
+  font-size: 1.55rem;
+  margin-bottom: 0.4rem;
+  color: #7AADBA;
+}
+
+.register-header p {
+  font-size: 0.875rem;
+  color: #5B7B88;
+}
+
+/* Sections */
+.register-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.75rem;
+}
+
+.form-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.1rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (min-width: 600px) {
+  .form-section { grid-template-columns: repeat(2, 1fr); }
+  .form-section h3, .form-group.full-width { grid-column: span 2; }
+}
+
+.form-section h3 {
+  font-size: 1.05rem;
+  color: #7AADBA;
+  display: flex;
+  align-items: center;
+}
+.form-section h3::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(91, 123, 136, 0.3);
+  margin-left: 0.85rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group label {
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: #5B7B88;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.submit-btn {
+  padding: 0.85rem;
+  font-size: 1rem;
+  border-radius: var(--radius-full);
+  margin-top: 0.5rem;
+}

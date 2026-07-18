@@ -1,0 +1,103 @@
+.admin-login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0a2a4a 0%, #0F4C81 60%, #1a5c99 100%);
+  padding: 2rem 1rem;
+}
+
+.admin-login-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 3rem 2.5rem;
+  text-align: center;
+}
+
+.admin-login-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-deep-blue), var(--accent-orange));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin: 0 auto 1.25rem;
+}
+
+.admin-login-title {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+  color: var(--primary-deep-blue);
+}
+
+.admin-login-sub {
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.admin-secret-note {
+  font-size: 0.8rem;
+  color: var(--accent-orange);
+  font-weight: 600;
+  margin-bottom: 2rem;
+  letter-spacing: 0.5px;
+}
+
+.admin-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  text-align: left;
+}
+
+.al-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.al-field label {
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.al-pass-wrap {
+  position: relative;
+}
+
+.al-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.input.with-icon {
+  padding-left: 2.5rem;
+}
+
+.admin-error {
+  background: #fff0f0;
+  border: 1px solid #ffcccc;
+  color: #cc0000;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.al-hint {
+  margin-top: 1.5rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.al-hint code {
+  background: rgba(15,76,129,0.08);
+  color: var(--primary-deep-blue);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}

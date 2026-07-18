@@ -1,0 +1,111 @@
+/* ── Dynamic Animated Background ────────────────────────── */
+.premium-bg-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f0ebd6 0%, #e6dfc6 100%); /* Base gradient */
+  pointer-events: none;
+}
+
+/* Animated Gradient Mesh Background */
+.bg-gradient-mesh {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: 
+    radial-gradient(circle at 15% 50%, rgba(166, 130, 114, 0.08), transparent 50%),
+    radial-gradient(circle at 85% 30%, rgba(91, 123, 136, 0.08), transparent 50%);
+  animation: mesh-rotate 30s linear infinite;
+  opacity: 0.8;
+}
+
+@keyframes mesh-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Tiny Animated Particles */
+.bg-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(166, 130, 114, 0.4);
+  box-shadow: 0 0 10px rgba(166, 130, 114, 0.5);
+  pointer-events: none;
+}
+
+/* Subtle Grid Pattern Overlay */
+.premium-grid-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200vw;
+  height: 200vh;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+  animation: grid-scroll 20s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes grid-scroll {
+  0% { transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-200px); }
+  100% { transform: perspective(500px) rotateX(60deg) translateY(40px) translateZ(-200px); }
+}
+
+/* Animated Gradient Blobs */
+.bg-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+  animation: float-blob 15s infinite ease-in-out;
+}
+
+.blob-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(166, 130, 114, 0.4) 0%, rgba(166, 130, 114, 0) 70%);
+  top: -100px;
+  left: -100px;
+  animation-delay: 0s;
+}
+
+.blob-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(91, 123, 136, 0.3) 0%, rgba(91, 123, 136, 0) 70%);
+  bottom: -150px;
+  right: -150px;
+  animation-delay: -5s;
+}
+
+.blob-3 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(72, 101, 113, 0.25) 0%, rgba(72, 101, 113, 0) 70%);
+  top: 40%;
+  left: 60%;
+  animation-delay: -10s;
+}
+
+@keyframes float-blob {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+/* Floating Icons */
+.bg-floating-icon {
+  position: absolute;
+  color: var(--primary-deep-blue);
+  opacity: 0.15;
+  filter: blur(1px);
+}
