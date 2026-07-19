@@ -10,23 +10,30 @@
 #
 ## Live Demo
 
-The application is deployed and can be accessed using the link below
+The application is deployed and can be accessed using the link below.
+
+### Note:
+
+**The information available on the platform is intended to showcase the functionality of the system.**
+
+**In the future, after obtaining official permission and approval from the university respective student societies administration, the platform will be deployed with verified society information, authentic event details, and real-time updates**
+
+#
 
 **Note:** For the best experience, please open the application link on a **laptop or desktop browser**. The current deployment is optimized for larger screens. While the application may open on mobile devices, some UI elements and layouts may not display correctly in the current version.
 
 **Live URL:** https://buildbyte-3bytesquad.vercel.app/
 
----
-#
+--- 
 ## Overview
 
 **UniConnect** is a centralized platform designed to connect all university societies in one place. It enables students to discover societies, explore upcoming events, and stay updated with campus activities, while providing society administrators with an easy way to manage their profiles and publish events.
 
-This project was developed as a hackathon solution to address the common problem of students missing opportunities due to scattered communication across
+This project was developed as a hackathon solution to address the common problem of students missing opportunities due to scattered communication across.
 
-This project is currently developed as a prototype for demonstration and evaluation purposes. The information available on the platform is intended to showcase the functionality of the system.
+**This project is currently developed as a prototype for demonstration and evaluation purposes. The information available on the platform is intended to showcase the functionality of the system.**
 
-**In the future, after obtaining official permission and approval from the university respective student societies, the platform will be deployed with verified society information, authentic event details, and real-time updates. The goal is to provide students with a centralized and reliable platform for discovering university societies and campus events.**
+**In the future, after obtaining official permission and approval from the university respective student societies administration, the platform will be deployed with verified society information, authentic event details, and real-time updates. The goal is to provide students with a centralized and reliable platform for discovering university societies and campus events.**
 
 ---
 #
