@@ -24,6 +24,10 @@ The application is deployed and can be accessed using the link below.
 
 **Live URL:** https://buildbyte-3bytesquad.vercel.app/
 
+
+**Video Link:**
+https://drive.google.com/file/d/13dLh_IbHF10dMYRJqF3N7S95bKfRHpai/view?usp=drivesdk
+
 --- 
 ## Overview
 
