@@ -7,14 +7,14 @@
   <img src="https://img.shields.io/badge/License-MIT-blue" />
 </p>
 
-
+#
 ## Live Demo
 
-The application is deployed and can be accessed using the following link:
+The application is deployed and can be accessed using the link below
+
+**Note:** For the best experience, please open the application link on a **laptop or desktop browser**. The current deployment is optimized for larger screens. While the application may open on mobile devices, some UI elements and layouts may not display correctly in the current version.
 
 **Live URL:** https://buildbyte-3bytesquad.vercel.app/
-
-> **Note:** For the best experience, please open the application on a **laptop or desktop browser**. The current deployment is optimized for larger screens. While the application may open on mobile devices, some UI elements and layouts may not display correctly in the current version.
 
 ---
 #
@@ -40,6 +40,7 @@ This project is currently developed as a prototype for demonstration and evaluat
 | Nawal Abid | Backend Integration & Application Logic |
 | Aaisha Jamil | Database Design, Supabase |
 
+#
 ## Features
 #
 ### Student Features
