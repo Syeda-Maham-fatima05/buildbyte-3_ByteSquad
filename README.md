@@ -14,7 +14,7 @@ The application is deployed and can be accessed using the link below.
 
 ### Note:
 
-**The information available on the platform is intended to showcase the functionality of the system.**
+**The information available on the platform or project "UniConnect" is intended to showcase the functionality of the system.**
 
 **In the future, after obtaining official permission and approval from the university respective student societies administration, the platform will be deployed with verified society information, authentic event details, and real-time updates**
 
