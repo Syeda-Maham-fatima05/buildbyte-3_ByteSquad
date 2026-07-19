@@ -7,17 +7,26 @@
   <img src="https://img.shields.io/badge/License-MIT-blue" />
 </p>
 
-## 📖 Overview
+## Overview
 
 **UniConnect** is a centralized platform designed to connect all university societies in one place. It enables students to discover societies, explore upcoming events, and stay updated with campus activities, while providing society administrators with an easy way to manage their profiles and publish events.
 
-This project was developed as a hackathon solution to address the common problem of students missing opportunities due to scattered communication across different platforms.
+This project was developed as a hackathon solution to address the common problem of students missing opportunities due to scattered communication across
+
+---
+#Team Members 
 
 ---
 
-## ✨ Features
+| Member   | Responsibility                          |
+| -------- | --------------------------------------- |
+| Syeda Maham Fatima | Frontend UI & UX and Deployment                       |
+| Nawal Abid | Backend Integration & Application Logic |
+| Aaisha Jamil | Database Design, Supabase |
 
-### 👨‍🎓 Student Features
+## Features
+
+### Student Features
 
 * Browse all university societies
 * View society profiles
@@ -26,7 +35,7 @@ This project was developed as a hackathon solution to address the common problem
 * View event details
 * Responsive interface for desktop and mobile
 
-### 🏛 Society Features
+### Society Features
 
 * Secure authentication
 * Society dashboard
@@ -36,7 +45,7 @@ This project was developed as a hackathon solution to address the common problem
 * Manage society profile
 * Upload society logos and event posters
 
-### 🔒 Security Features
+### Security Features
 
 * Authentication using Supabase
 * Protected routes
@@ -46,7 +55,7 @@ This project was developed as a hackathon solution to address the common problem
 
 ---
 
-# 🛠 Tech Stack
+# Tech Stack
 
 ## Frontend
 
@@ -72,48 +81,22 @@ This project was developed as a hackathon solution to address the common problem
 
 ---
 
-# 📁 Project Structure
+# Getting Started
 
-```text
-client/
-│
-├── public/
-│
-├── src/
-│   ├── assets/
-│   ├── components/
-│   ├── pages/
-│   ├── services/
-│   ├── hooks/
-│   ├── utils/
-│   ├── lib/
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
-│
-├── .env
-├── package.json
-└── vite.config.js
-```
-
----
-
-# 🚀 Getting Started
-
-## Clone the Repository
+### Clone the Repository
 
 ```bash
 git clone https://github.com/your-username/uniconnect.git
 cd uniconnect
 ```
 
-## Install Dependencies
+### Install Dependencies
 
 ```bash
 npm install
 ```
 
-## Configure Environment Variables
+### Configure Environment Variables
 
 Create a `.env` file in the project root.
 
@@ -122,7 +105,7 @@ VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-## Start Development Server
+### Start Development Server
 
 ```bash
 npm run dev
@@ -136,16 +119,9 @@ http://localhost:5173
 
 ---
 
-# 🗄 Database
+# Database
 
 The application uses **Supabase PostgreSQL**.
-
-Main tables include:
-
-* societies
-* events
-* posts
-* registration_requests
 
 Storage buckets include:
 
@@ -155,16 +131,16 @@ Storage buckets include:
 
 ---
 
-# 🔄 Application Flow
+# Application Flow
 
 ```text
 Student
     │
     ▼
-Browse Societies
+View Societies
     │
     ▼
-View Events
+View Events/Posts 
     │
     ▼
 Register for Events
@@ -180,18 +156,25 @@ Login
 Dashboard
       │
       ▼
-Create / Edit / Delete Events
+Create / Edit / Delete Events/Posts 
       │
       ▼
-Events Published
+Events/Posts Published
       │
       ▼
-Students View Events
+Students View Events/Posts 
 ```
 
 ---
+# Version Control 
 
-# 📌 Core Modules
+---
+
+The complete project source code was managed using **Git** and hosted on **GitHub**. Throughout the development process, Git was used to track changes, collaborate among team members, and maintain different versions of the project.
+
+---
+
+# Core Modules
 
 * Authentication
 * Society Management
@@ -202,19 +185,8 @@ Students View Events
 * Storage Management
 
 ---
-
-# 📷 Screens
-
-* Home Page
-* Login Page
-* Register Page
-* Dashboard
-* Society Directory
-* Society Profile
-
----
-
-# 🧪 Testing
+#
+# Testing
 
 The project has been tested for:
 
@@ -231,26 +203,13 @@ The project has been tested for:
 
 ---
 
-# 👥 Team
-
-| Member   | Responsibility                          |
-| -------- | --------------------------------------- |
-| Syeda Maham Fatima | Frontend UI & UX                        |
-| Nawal Abid | Backend Integration & Application Logic |
-| Aaisha Jamil | Database Design, Supabase & Deployment  |
-
----
-
 # 🔮 Future Enhancements
 
 * Event registration system
 * Email notifications
 * AI-based event recommendations
 * Real-time chat
-* Society announcements
 * Event analytics
-* Admin approval dashboard
-* Calendar integration
 * QR Code event check-in
 * Push notifications
 
@@ -259,7 +218,7 @@ The project has been tested for:
 
 ---
 
-# 📄 License
+# License
 
 This project is licensed under the **MIT License**.
 
