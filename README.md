@@ -38,7 +38,7 @@ This project is currently developed as a prototype for demonstration and evaluat
 | -------- | --------------------------------------- |
 | Syeda Maham Fatima | Frontend UI & UX and Deployment                       |
 | Nawal Abid | Backend Integration & Application Logic |
-| Aaisha Jamil | Database Design, Supabase |
+| Aaisha Jamil | Database Design & Supabase |
 
 #
 ## Features
@@ -113,8 +113,6 @@ By replacing fragmented communication with one unified system, UniConnect improv
 ---
 
 # Getting Started
-
-You can open the deployed link shared above.
 
 ### Clone the Repository
 
