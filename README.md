@@ -14,7 +14,8 @@
 This project was developed as a hackathon solution to address the common problem of students missing opportunities due to scattered communication across
 
 ---
-#Team Members 
+#
+# Team Members 
 
 ---
 
@@ -25,7 +26,7 @@ This project was developed as a hackathon solution to address the common problem
 | Aaisha Jamil | Database Design, Supabase |
 
 ## Features
-
+#
 ### Student Features
 
 * Browse all university societies
@@ -54,6 +55,7 @@ This project was developed as a hackathon solution to address the common problem
 * Error handling
 
 ---
+#
 
 # Tech Stack
 
@@ -166,6 +168,7 @@ Students View Events/Posts
 ```
 
 ---
+#
 # Version Control 
 
 ---
@@ -203,7 +206,7 @@ The project has been tested for:
 
 ---
 
-# 🔮 Future Enhancements
+# Future Enhancements
 
 * Event registration system
 * Email notifications
